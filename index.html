@@ -4,56 +4,54 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Livestream BG</title>
-
+  <title>Live Stream</title>
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
   <style>
-    body {
-      background-color: black;
+    * {
       margin: 0;
       padding: 0;
+      box-sizing: border-box;
     }
 
-    .bg-video {
-      position: fixed;
-      left: 50%;
+    body {
+      background: #000;
+      overflow: hidden;
+    }
+
+    video {
+      position: absolute;
       top: 0;
-      background-size: cover;
-      transform: translateX(-50%);
-      user-select: none;
-      pointer-events: none;
-
-      /*additional tweaks for positioning, read more in the link above*/
-      height: 100%;
-      width: 177.77777778vh;
-      /* 100 * 16 / 9 */
-      min-width: 100%;
-      min-height: 56.25vw;
-      /* 100 * 9 / 16 */
-    }
-
-    h1 {
-      position: fixed;
-      top: 33%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      font-size: 60px;
-      color: white;
-      font-family: sans-serif;
-      opacity: 0.8;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      object-fit: cover;
+      /* Fill screen while maintaining aspect ratio */
     }
   </style>
 </head>
 
 <body>
-  <div class="iframe-wrapper">
-    <iframe class="bg-video" width="560" height="315"
-      src="https://www.youtube.com/embed/F0GOOP82094?si=2YspsyjXjGXplAX7&autoplay=1&modestbranding=1&controls=0&showinfo=0&autohide=1&mute=1"
-      title="YouTube video player" frameborder="0"
-      allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; web-share"
-      referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-
-      <h1>Buy This Thing</h1>
-  </div>
+  <video id="live-stream" autoplay playsinline muted></video>
+  <script>
+    const video = document.getElementById('live-stream');
+    const videoSrc = "https://7aed84b3e162.entrypoint.cloud.wowza.com/app-P078m36W/ngrp:09f2220f_all/playlist.m3u8"; // Replace with your HLS URL
+    if (Hls.isSupported()) {
+      const hls = new Hls();
+      hls.loadSource(videoSrc);
+      hls.attachMedia(video);
+      hls.on(Hls.Events.MANIFEST_PARSED, function () {
+        video.play();
+      });
+    } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+      video.src = videoSrc;
+      video.addEventListener('loadedmetadata', function () {
+        video.play();
+      });
+    }
+    // Ensure autoplay works even if browser blocks it
+    video.muted = true; // Most browsers allow autoplay when muted
+    video.play().catch(error => console.log("Autoplay blocked:", error));
+  </script>
 </body>
 
 </html>
